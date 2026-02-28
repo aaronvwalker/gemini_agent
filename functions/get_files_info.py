@@ -1,7 +1,5 @@
-from os import path, listdir, scandir
+import os
 from google.genai import types
-
-
 
 schema_get_files_info = types.FunctionDeclaration(
     name="get_files_info",
@@ -20,19 +18,20 @@ schema_get_files_info = types.FunctionDeclaration(
 
 
 def get_files_info(working_directory, directory="."):
-    work_abs = path.abspath(working_directory)
-    target = path.normpath(path.join(work_abs, directory))
+    work_abs = os.path.abspath(working_directory)
+    target = os.path.normpath(os.path.join(work_abs, directory))
     
-    if path.commonpath([work_abs, target]) != work_abs:
+    if os.path.commonpath([work_abs, target]) != work_abs:
         return f'Error: Cannot list "{directory}" as it is outside the working directory'
-    if not path.isdir(target):
+    if not os.path.isdir(target):
         return f'Error: "{directory}" is not a directory'
     results = ""
-    with scandir(target) as items:
+    with os.scandir(target) as items:
         for item in items:
-            if path.isdir(item) or item is path.isfile(item):
+            print(item.name)
+            if item.is_dir() or item.is_file():
                 name = item.name
-                size = path.getsize(item)
-                is_dir = path.isdir(item)
+                size = item.stat().st_size
+                is_dir = item.is_dir()
                 results += f'- {name}: file_size={size} bytes, is_dir={is_dir}  \n'
     return results
